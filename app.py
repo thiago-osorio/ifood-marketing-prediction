@@ -2,10 +2,11 @@ import pickle
 import pandas as pd
 import numpy as np
 import datetime
+from sklearn.preprocessing import scale
 import streamlit as st
 from PIL import Image
 
-def predicao(data, modelo):
+def predicao(data, scaler, modelo):
     try:
         df = pd.read_csv(data, sep=';')
         print(df)
@@ -20,9 +21,11 @@ def predicao(data, modelo):
         for column in columns:
             if column not in X.columns:
                 X[column] = 0
-        pred = modelo.predict(X)
+        X_standard = scaler.transform(X)
+        pred = modelo.predict(X_standard)
         df['Predict'] = pred
-        df[['ID', 'Predict']].to_csv('prediction/predict.csv', index=None)
+        df['Predict'] = df['Predict'].map(lambda x: 'Will respond' if x == 1 else 'Will NOT respond')
+        df[['ID', 'Predict']].to_csv('prediction/predict.csv', index=None, sep=';')
         return 'Predictions made with success'
     except:
         return 'Prediction error'
@@ -51,7 +54,8 @@ data = st.file_uploader(
 
 if data is not None:
     modelo = pickle.load(open('models/lightgbm_ifood.pkl', 'rb'))
-    pred = predicao(data, modelo)
+    scaler = pickle.load(open('models/scaler.pkl', 'rb'))
+    pred = predicao(data, scaler, modelo)
     st.write(pred)
     if pred == 'Predictions made with success':
         with open('prediction/predict.csv', 'rb') as prediction:
