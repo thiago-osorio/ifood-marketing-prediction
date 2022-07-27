@@ -8,5 +8,5 @@ Pillow
 seaborn
 sklearn
 statsmodels
-skopt
+scikit-optimize
 streamlit
