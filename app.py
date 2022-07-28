@@ -34,33 +34,50 @@ st.image(Image.open('source/logo.png'), width=120)
 
 st.title('iFood Marketing Prediction')
 
-st.caption('Please, download the csv file and put your customers information')
-
-with open('data/example.csv', 'rb') as file:
-    btn = st.download_button(
-        label='Download',
-        data=file,
-        file_name='example.csv'
-    )
-
-st.markdown('---')
-
-st.subheader('Now it\'s time to generate prediction')
-
-data = st.file_uploader(
-    label = 'Upload csv',
-    type='csv'
+mode = st.radio(
+    'Select what kind of prediction you want',
+    ('CSV', 'Screen')
 )
 
-if data is not None:
-    modelo = pickle.load(open('models/lightgbm_ifood.pkl', 'rb'))
-    scaler = pickle.load(open('models/scaler.pkl', 'rb'))
-    pred = predicao(data, scaler, modelo)
-    st.write(pred)
-    if pred == 'Predictions made with success':
-        with open('prediction/predict.csv', 'rb') as prediction:
-            btn_download = st.download_button(
-                label='Results',
-                data=prediction,
-                file_name='predictions.csv'
-            )
+if mode == 'CSV':
+    st.caption('Please, download the csv file and put your customers information')
+
+    with open('data/example.csv', 'rb') as file:
+        btn = st.download_button(
+            label='Download',
+            data=file,
+            file_name='example.csv'
+        )
+
+    st.markdown('---')
+
+    st.subheader('Now it\'s time to generate prediction')
+
+    data = st.file_uploader(
+        label = 'Upload csv',
+        type='csv'
+    )
+
+    if data is not None:
+        modelo = pickle.load(open('models/lightgbm_ifood.pkl', 'rb'))
+        scaler = pickle.load(open('models/scaler.pkl', 'rb'))
+        pred = predicao(data, scaler, modelo)
+        st.write(pred)
+        if pred == 'Predictions made with success':
+            with open('prediction/predict.csv', 'rb') as prediction:
+                btn_download = st.download_button(
+                    label='Results',
+                    data=prediction,
+                    file_name='predictions.csv'
+                )
+else:
+    st.markdown('---')
+    
+    st.subheader('Now it\'s time to generate prediction')
+    
+    user_id = st.text_input('User ID')
+    year_birth = st.number_input('Year Birth', format='%i', step=1, min_value=1900, value=1900)
+    education = st.selectbox('Education', ['Graduation', 'PhD', 'Master Education', 'Basic', '2n Cycle'])
+    marital_status = st.selectbox('Marital Status', ['Single', 'Togheter', 'Married', 'Divorced', 'Widow', 'Alone', 'Absurd', 'YOLO'])
+    income = st.number_input('Income', format='%i', step=1)
+    kidhome = st.number_input('Kidhome', format='%i', step=1, min_value=0, max_value=2)
